@@ -1,41 +1,58 @@
-// Initial References
-const uploadButton = document.getElementById('upload-button');
-const chosenImage = document.getElementById('chosen-image');
-const imageContainer = document.querySelector('.image-container');
-const filters = document.querySelectorAll('.editor input[type="range"]');
+let filterA = document.getElementById("blur");
+let filterB = document.getElementById("contrast");
+let filterC = document.getElementById("hue-rotate");
+let filterD = document.getElementById("sepia");
 
-// Default filter values
-let filterValues = {
-    'hue-rotate': 0,
-    sepia: 0
-};
+let noFlipBtn = document.getElementById("no-flip");
+let flipXBtn = document.getElementById("flip-x");
+let flipYBtn = document.getElementById("flip-y");
 
-// Apply filters to the image
-const applyFilters = () => {
-    const filterString = `
-        hue-rotate(${filterValues['hue-rotate']}deg) 
-        sepia(${filterValues.sepia}%)
-    `;
-    chosenImage.style.filter = filterString;
-};
+let uploadButton = document.getElementById("upload-button");
+let image = document.getElementById("chosen-image");
 
-// Update filter values and apply filters
-filters.forEach(filter => {
-    filter.addEventListener('input', (e) => {
-        filterValues[e.target.id] = e.target.value;
-        applyFilters();
-    });
-});
 
-// Handle image upload
-uploadButton.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            chosenImage.src = event.target.result;
-            imageContainer.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
+function resetFilter(){
+    filterA.value = "0";
+    filterB.value = "100";
+    filterC.value = "0";
+    filterD.value = "0";
+    noFlipBtn.checked = true;
+    addFilter();
+    flipImage();
+}
+
+uploadButton.onchange = () => {
+    resetFilter();
+    document.querySelector(".image-container").style.display = "block";
+    let reader = new FileReader();
+    reader.readAsDataURL(uploadButton.files[0]);
+    reader.onload = () => {
+        image.setAttribute("src", reader.result);
     }
+}
+
+let sliders = document.querySelectorAll(".filter input[type='range']");
+sliders.forEach( slider => {
+    slider.addEventListener("input", addFilter);
 });
+
+function addFilter(){
+    image.style.filter = `blur(${filterA.value}px) contrast(${filterB.value}%) hue-rotate(${filterC.value}deg) sepia(${filterD.value}%)`;
+}
+
+let radioBtns = document.querySelectorAll(".flip-option input[type='radio']");
+radioBtns.forEach( radioBtn => {
+    radioBtn.addEventListener("click", flipImage);
+});
+
+function flipImage(){
+    if(flipXBtn.checked){
+        image.style.transform = "scaleX(-1)";
+    }
+    else if(flipYBtn.checked){
+        image.style.transform = "scaleY(-1)";
+    }
+    else{
+        image.style.transform = "scale(1,1)";
+    }
+}
